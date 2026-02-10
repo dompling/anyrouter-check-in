@@ -187,7 +187,7 @@ def execute_check_in(client, account_name: str, provider_config, headers: dict):
 				return True
 			else:
 				error_msg = result.get('msg', result.get('message', 'Unknown error'))
-				if error_msg == "已签到":
+				if error_msg == "今日已签到":
 					print(f'[SUCCESS] {account_name}: Check-in successful!')
 					return True
 				print(f'[FAILED] {account_name}: Check-in failed - {error_msg}')
