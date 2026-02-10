@@ -490,6 +490,11 @@ button.secondary {
   border: 1px solid rgba(15, 118, 110, 0.3);
 }
 
+button.small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 button.ghost {
   background: transparent;
   color: var(--muted);
@@ -509,6 +514,27 @@ button:active {
   font-size: 13px;
   color: var(--muted);
   padding: 20px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(20px);
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .modal {

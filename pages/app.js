@@ -29,6 +29,7 @@ const elements = {
   importAccountsBtn: document.getElementById("importAccountsBtn"),
   importProvidersBtn: document.getElementById("importProvidersBtn"),
   importMessage: document.getElementById("importMessage"),
+  toast: document.getElementById("toast"),
   openImport: document.getElementById("openImport"),
   importModal: document.getElementById("importModal"),
   closeImport: document.getElementById("closeImport"),
@@ -41,6 +42,7 @@ let state = loadState();
 let lastSavedAt = state.savedAt || null;
 let accountsSwiper = null;
 let providersSwiper = null;
+let toastTimer = null;
 const modalState = {
   selectAccountIndex: null,
   providersFocusIndex: null,
@@ -75,11 +77,11 @@ function migrateV1(parsed) {
   const data = parsed.data || {};
   const accounts = Array.isArray(data.accounts)
     ? data.accounts.map((account) => ({
-        name: account.name || "",
-        api_user: account.api_user || "",
-        cookies: Array.isArray(account.cookies) ? account.cookies : [{ key: "session", value: "" }],
-        provider: account.provider || "",
-      }))
+      name: account.name || "",
+      api_user: account.api_user || "",
+      cookies: Array.isArray(account.cookies) ? account.cookies : [{ key: "session", value: "" }],
+      provider: account.provider || "",
+    }))
     : defaultState.accounts;
 
   return {
@@ -93,14 +95,14 @@ function migrateV2(parsed) {
   const data = parsed.data || {};
   const accounts = Array.isArray(data.accounts)
     ? data.accounts.map((account) => {
-        const providerValue = Array.isArray(account.providers) ? account.providers[0] : account.provider;
-        return {
-          name: account.name || "",
-          api_user: account.api_user || "",
-          cookies: Array.isArray(account.cookies) ? account.cookies : [{ key: "session", value: "" }],
-          provider: providerValue || "",
-        };
-      })
+      const providerValue = Array.isArray(account.providers) ? account.providers[0] : account.provider;
+      return {
+        name: account.name || "",
+        api_user: account.api_user || "",
+        cookies: Array.isArray(account.cookies) ? account.cookies : [{ key: "session", value: "" }],
+        provider: providerValue || "",
+      };
+    })
     : defaultState.accounts;
 
   return {
@@ -201,13 +203,13 @@ function renderAccounts() {
               <select data-account-index="${index}" data-provider-select="true">
                 <option value="">不设置</option>
                 ${providerOptions
-                  .map((providerKey) => {
-                    const isSelected = providerKey === currentProvider;
-                    return `
+          .map((providerKey) => {
+            const isSelected = providerKey === currentProvider;
+            return `
                       <option value="${escapeHtml(providerKey)}" ${isSelected ? "selected" : ""}>${escapeHtml(providerKey)}</option>
                     `;
-                  })
-                  .join("")}
+          })
+          .join("")}
               </select>
               <button class="secondary" data-add-provider="${index}">+ 配置 Provider</button>
               <p class="provider-note">如需新增 Provider，请先在弹窗中维护。</p>
@@ -216,16 +218,16 @@ function renderAccounts() {
               <label>Cookies</label>
               <div class="cookie-list">
                 ${cookies
-                  .map(
-                    (cookie, cookieIndex) => `
+          .map(
+            (cookie, cookieIndex) => `
                       <div class="cookie-item">
                         <input type="text" value="${escapeHtml(cookie.key)}" data-account-index="${index}" data-cookie-index="${cookieIndex}" data-cookie-field="key" placeholder="cookie 名称" />
                         <input type="text" value="${escapeHtml(cookie.value)}" data-account-index="${index}" data-cookie-index="${cookieIndex}" data-cookie-field="value" placeholder="cookie 值" />
                         <button class="ghost" data-remove-cookie="${index}" data-cookie-index="${cookieIndex}">移除</button>
                       </div>
                     `
-                  )
-                  .join("")}
+          )
+          .join("")}
               </div>
               <button class="secondary" data-add-cookie="${index}">新增 Cookie</button>
             </div>
@@ -242,7 +244,7 @@ function renderProviders() {
       <div class="swiper-slide">
         <div class="card provider-card">
           <p>暂无自定义 Provider，需要时可新增。</p>
-          <button class="secondary" data-add-provider-item>新增服务商</button>
+          <button class="secondary small" data-add-provider-item style="height:50px">新增服务商</button>
         </div>
       </div>
     `;
@@ -500,6 +502,18 @@ function showImportMessage(text, isError) {
   elements.importMessage.style.color = isError ? "#b91c1c" : "#0f766e";
 }
 
+function showToast(message) {
+  if (!elements.toast) return;
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+  }
+  elements.toast.textContent = message;
+  elements.toast.classList.add("show");
+  toastTimer = setTimeout(() => {
+    elements.toast.classList.remove("show");
+  }, 1800);
+}
+
 function addAccount() {
   state.accounts.push({
     name: "",
@@ -534,7 +548,7 @@ function duplicateAccount(index) {
   state.accounts.splice(index + 1, 0, copy);
   saveState();
   render(index + 1);
-  showImportMessage("已复制一份账号配置。", false);
+  showToast("已复制一份账号配置。");
 }
 
 function duplicateProvider(index) {
@@ -546,7 +560,7 @@ function duplicateProvider(index) {
   saveState();
   modalState.providersFocusIndex = index + 1;
   render(getActiveSlideIndex());
-  showImportMessage("已复制一份服务商配置。", false);
+  showToast("已复制一份服务商配置。");
 }
 
 function resetState() {
