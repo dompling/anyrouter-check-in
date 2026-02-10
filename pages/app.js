@@ -483,17 +483,17 @@ function getActiveProviderIndex() {
 
 function copyToClipboard(value, message) {
   if (!value) {
-    showImportMessage("暂无可复制内容。", true);
+    showToast("暂无可复制内容。");
     return;
   }
 
   navigator.clipboard
     .writeText(value)
     .then(() => {
-      showImportMessage(message, false);
+      showToast(message);
     })
     .catch(() => {
-      showImportMessage("复制失败，请手动复制。", true);
+      showToast("复制失败，请手动复制。");
     });
 }
 
