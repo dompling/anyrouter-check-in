@@ -249,6 +249,7 @@ async def check_in_account(account: AccountConfig, account_index: int, app_confi
 		elif user_info:
 			print(user_info.get('error', 'Unknown error'))
 
+        print(f"检查结果: {provider_config.needs_manual_check_in()}")
 		if provider_config.needs_manual_check_in():
 			success = execute_check_in(client, account_name, provider_config, headers)
 			return success, user_info
