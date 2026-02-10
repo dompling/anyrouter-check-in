@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Any Router 配置可视化</title>
+  <meta name="description" content="可视化生成 ANYROUTER_ACCOUNTS 与 PROVIDERS 配置，并自动缓存上次编辑内容。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Any Router 多账号签到</p>
+        <h1>配置可视化工作台</h1>
+        <p class="lead">
+          用表单构建配置、实时预览 JSON，自动保存到浏览器缓存，关闭页面也不丢。
+        </p>
+      </div>
+      <div class="hero-card compact">
+        <div class="cache-row">
+          <span class="label">缓存</span>
+          <span id="cacheStatus" class="value">未检测</span>
+          <span class="divider">•</span>
+          <span class="label">保存</span>
+          <span id="cacheTime" class="value">-</span>
+        </div>
+        <div class="cache-actions">
+          <button id="openProviders" class="secondary">配置 Providers</button>
+          <button id="clearCache" class="ghost">清除缓存</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="layout">
+        <section class="panel accounts-panel">
+          <div class="panel-header">
+            <h2>账号配置</h2>
+            <div class="panel-actions">
+              <button id="openImport" class="secondary">快速导入</button>
+              <button id="addAccount" class="primary">新增账号</button>
+            </div>
+          </div>
+          <div class="accounts-shell">
+            <button id="accountsPrev" class="nav-btn nav-left" aria-label="上一条">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="swiper accounts-swiper">
+              <div id="accounts" class="swiper-wrapper"></div>
+              <div class="swiper-pagination"></div>
+            </div>
+            <button id="accountsNext" class="nav-btn nav-right" aria-label="下一条">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel output">
+          <div class="panel-header">
+            <h2>生成的 JSON</h2>
+            <div class="panel-actions">
+              <button id="copyAccounts" class="secondary">复制 ANYROUTER_ACCOUNTS</button>
+              <button id="copyProviders" class="secondary">复制 PROVIDERS</button>
+            </div>
+          </div>
+          <div class="output-grid">
+            <div>
+              <label class="output-label">ANYROUTER_ACCOUNTS</label>
+              <textarea id="accountsJson" readonly></textarea>
+            </div>
+            <div>
+              <label class="output-label">PROVIDERS (可选)</label>
+              <textarea id="providersJson" readonly></textarea>
+            </div>
+          </div>
+          <div class="hint">
+            <span>提示：</span>这两个值直接复制到 GitHub Secrets 中即可。JSON 以格式化方式显示。
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>配置仅保存在你的浏览器缓存中，不会上传到任何服务器。</p>
+  </footer>
+
+  <div id="providerModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="providerModalTitle">
+      <div class="modal-header">
+        <h2 id="providerModalTitle">自定义 Providers</h2>
+        <button id="closeProviders" class="ghost">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="providers-shell">
+          <button id="providersPrev" class="nav-btn nav-left" aria-label="上一条">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div class="swiper providers-swiper">
+            <div id="providers" class="swiper-wrapper"></div>
+            <div class="swiper-pagination"></div>
+          </div>
+          <button id="providersNext" class="nav-btn nav-right" aria-label="下一条">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="importModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+      <div class="modal-header">
+        <h2 id="importModalTitle">快速导入</h2>
+        <button id="closeImport" class="ghost">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-grid">
+          <div>
+            <label class="output-label">粘贴 ANYROUTER_ACCOUNTS JSON</label>
+            <textarea id="importAccounts" placeholder="粘贴 JSON 后点击导入"></textarea>
+            <button id="importAccountsBtn" class="secondary">导入账号配置</button>
+          </div>
+          <div>
+            <label class="output-label">粘贴 PROVIDERS JSON</label>
+            <textarea id="importProviders" placeholder="粘贴 JSON 后点击导入"></textarea>
+            <button id="importProvidersBtn" class="secondary">导入 Provider 配置</button>
+          </div>
+        </div>
+        <p id="importMessage" class="import-message"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+
+</html>
