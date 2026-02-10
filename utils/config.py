@@ -63,6 +63,8 @@ class ProviderConfig:
 
 	def needs_manual_check_in(self) -> bool:
 		"""判断是否需要手动调用签到接口"""
+		print(self.bypass_method)
+		print(self.name)
 		return self.bypass_method == 'waf_cookies'
 
 
