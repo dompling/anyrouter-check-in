@@ -244,8 +244,6 @@ async def check_in_account(account: AccountConfig, account_index: int, app_confi
 			'Sec-Fetch-Site': 'same-origin',
 			provider_config.api_user_key: account.api_user,
 		}
-		if provider_config.domain == "https://newapi.linuxdo.edu.rs":
-			print(client.cookies)
 		user_info_url = f'{provider_config.domain}{provider_config.user_info_path}'
 		user_info = get_user_info(client, headers, user_info_url)
 		if user_info and user_info.get('success'):
